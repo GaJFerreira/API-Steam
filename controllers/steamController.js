@@ -9,7 +9,7 @@ async function getUser(req, res) {
   }
 }
 
-async function getGames(req, res) {
+async function getLibrary(req, res) {
   try {
     const data = await steamService.getOwnedGames(req.params.steamid);
     res.json(data);
@@ -29,14 +29,22 @@ async function getAchievements(req, res) {
       error.response.status === 400 &&
       error.response.data?.playerstats?.error
     ) {
-      res
-        .status(400)
-        .json({
-          detail: `Erro ao obter conquistas: ${error.response.data.playerstats.error}`,
-        });
+      res.status(400).json({
+        detail: `Erro ao obter conquistas: ${error.response.data.playerstats.error}`,
+      });
     } else {
       handleError(res, error, "GetPlayerAchievements");
     }
+  }
+}
+
+async function getGameDetails(req, res) {
+  const { appid } = req.params;
+  try {
+    const game = await steamService.getGameDetails(appid);
+    res.json(game);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 }
 
@@ -49,22 +57,19 @@ function handleError(res, error, context) {
       )}`,
     });
   } else if (error.request) {
-    res
-      .status(500)
-      .json({
-        detail: `Nenhuma resposta recebida da API da Steam (${context})`,
-      });
+    res.status(500).json({
+      detail: `Nenhuma resposta recebida da API da Steam (${context})`,
+    });
   } else {
-    res
-      .status(500)
-      .json({
-        detail: `Erro na configuração da requisição (${context}): ${error.message}`,
-      });
+    res.status(500).json({
+      detail: `Erro na configuração da requisição (${context}): ${error.message}`,
+    });
   }
 }
 
 module.exports = {
   getUser,
-  getGames,
+  getLibrary,
   getAchievements,
+  getGameDetails,
 };

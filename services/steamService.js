@@ -7,6 +7,7 @@ const BASE_URLS = {
   ownedGames: "https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/",
   achievements:
     "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/",
+  gameDetails: "https://store.steampowered.com/api/appdetails",
 };
 
 async function getUserSummary(steamids) {
@@ -32,6 +33,22 @@ async function getOwnedGames(steamid) {
   return response.data;
 }
 
+async function getGameDetails(appid) {
+  const response = await axios.get(BASE_URLS.gameDetails, {
+    params: {
+      appids: appid,
+      key: STEAM_API_KEY,
+    },
+  });
+  const gameData = response.data[appid];
+  if (gameData && gameData.success) {
+    return gameData.data;
+  } else {
+    throw new Error("Jogo não encontrado");
+  }
+}
+module.exports = { getGameDetails };
+
 async function getPlayerAchievements(steamid, appid) {
   const response = await axios.get(BASE_URLS.achievements, {
     params: {
@@ -48,4 +65,5 @@ module.exports = {
   getUserSummary,
   getOwnedGames,
   getPlayerAchievements,
+  getGameDetails,
 };
